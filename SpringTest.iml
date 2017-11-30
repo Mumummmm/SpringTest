@@ -28,8 +28,13 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-context:5.0.2.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-aop:5.0.2.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-beans:5.0.2.RELEASE" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-core:5.0.2.RELEASE" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-jcl:5.0.2.RELEASE" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.springframework:spring-expression:5.0.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:5.0.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.0.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.22" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.22" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-slf4j-impl:2.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.7" level="project" />
   </component>
 </module>
