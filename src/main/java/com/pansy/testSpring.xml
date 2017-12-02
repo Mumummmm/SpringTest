@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:p="http://www.springframework.org/schema/p"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -12,4 +13,107 @@
     <bean id="serviceLocator" class="com.pansy.service.DefaultServiceLocator"/>
     <bean id="clientService2" factory-bean="serviceLocator" factory-method="createClientServiceInstance" />
     <bean id="account" factory-bean="serviceLocator" factory-method="createAccountServiceInstance" />
+    <!-- 解析构造器参数-->
+    <bean id="bar" class="com.pansy.pojo.Bar" />
+    <bean id="baz" class="com.pansy.pojo.Baz" />
+    <bean id="foo" class="com.pansy.pojo.Foo">
+        <constructor-arg ref="bar" />
+        <constructor-arg ref="baz" />
+    </bean>
+    <!-- 当使用简单类型，SpringIOC容器无法判断值的类型，所以无法匹配-->
+    <bean id="exampleBean2" class="com.pansy.pojo.ExampleBean2">
+        <constructor-arg type="int" value="750000" />
+        <constructor-arg type="java.lang.String" value="42" />
+    </bean>
+    <!-- 或者使用index属性来指定构造参数的位置-->
+    <bean id="exampleBean3" class="com.pansy.pojo.ExampleBean2">
+        <constructor-arg index="0" value="750000" />
+        <constructor-arg index="1" value="42" />
+    </bean>
+    <!-- 再或者通过参数的名称来消除歧义，需要注意的是，解析这个配置的代码必须启用调试标记来编译，这样Spring才能从构造参数查找参数名称
+        或者开发者也可以使用@ConstructorProperties注解来显示声明构造函数的名称-->
+    <bean id="exampleBean4" class="com.pansy.pojo.ExampleBean2">
+        <constructor-arg name="years" value="75000" />
+        <constructor-arg name="ultimateAnswer" value="42" />
+    </bean>
+    <!-- setter注入-->
+    <bean id="exampleBean5" class="com.pansy.pojo.ExampleBean3">
+        <property name="beanOne">
+            <ref bean="anotherExampleBean" />
+        </property>
+        <property name="beanTwo" ref="yetAnotherBean" />
+        <property name="i" value="1" />
+    </bean>
+    <bean id="anotherExampleBean" class="com.pansy.pojo.AnotherBean" />
+    <bean id="yetAnotherBean" class="com.pansy.pojo.YetAnotherBean" />
+    <!-- 构造器注入-->
+    <bean id="exampleBean6" class="com.pansy.pojo.ExampleBean3">
+        <constructor-arg>
+            <ref bean="anotherExampleBean" />
+        </constructor-arg>
+        <constructor-arg ref="yetAnotherBean" />
+        <constructor-arg type="int" value="1" />
+    </bean>
+    <!-- 静态工厂方法注入，工厂方法的实例的使用本质上样式完全一样（除了使用factory_bean属性代替class属性之外）-->
+    <bean id="exampleBean7" class="com.pansy.pojo.ExampleBean4" factory-method="createInstance">
+        <constructor-arg>
+            <ref bean="anotherExampleBean" />
+        </constructor-arg>
+        <constructor-arg ref="yetAnotherBean" />
+        <constructor-arg type="int" value="1" />
+    </bean>
+    <!--<property>元素的value属性指定了一个属性或构造函数参数作为可读的字符串表示。使用Spring的转换服务将这些值从string转成属性或参数的真实类型-->
+    <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/mydb" />
+        <property name="username" value="root"/>
+        <property name="password" value="admin"/>
+    </bean>
+    <!-- 更简洁的XML配置使用了命名P空间-->
+    <bean id="myDataSource2" class="org.apache.commons.dbcp.BasicDataSource"
+        destroy-method="close"
+        p:driverClassName="com.mysql.jdbc.Driver"
+        p:url="jdbc:mysql://localhost:3306/mydb"
+        p:username="root"
+        p:password="admin"/>
+    <!-- 配置java.util.Properties实例-->
+    <bean id="mappings" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties">
+            <value>
+                jdbc.driver.className=com.mysql.jdbc.Driver
+                jdbc.url=jdbc:mysql://localhost:3306/mydb
+            </value>
+        </property>
+        <!-- 引入配置文件-->
+        <property name="location">
+            <!--<value>classpath:db.properties</value>-->
+            <value>file:db.properties</value>
+        </property>
+    </bean>
+    <bean id="myDataSource3" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver.className}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <!-- 在容器中传递另一个bean的id（字符串值，而不是引用）到<constructor-arg>或<proeprty>元素时，idref元素是一种简单的误差检验方式-->
+    <bean id="theTargetBean" class="com.pansy.pojo.AnotherBean"/>
+    <bean id="theClientBean" class="com.pansy.pojo.ExampleBean5">
+        <property name="targetName">
+            <idref bean="theTargetBean"></idref>
+        </property>
+    </bean>
+    <!--上面的bean定义片段等价于下面的代码，第一种优于第二种，因为idref标签允许容器在部署时验证引用的bean-->
+    <bean id="theClientBean2" class="com.pansy.pojo.ExampleBean5">
+        <property name="targetName" value="theTargetBean"/>
+    </bean>
+    <!-- 内部bean，<property>或<constructor-arg>元素内的<bean>元素中定义bean称为内部bean-->
+    <bean id="outer" class="com.pansy.pojo.Outer">
+        <property name="target">
+            <bean class="com.pansy.pojo.Inner">
+                <property name="name" value="Fiona Apple"/>
+                <property name="age" value="25"/>
+            </bean>
+        </property>
+    </bean>
 </beans>
