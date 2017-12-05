@@ -3,7 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p" xmlns:c="http://www.springframework.org/schema/c"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd"
+    default-lazy-init="false"
+    default-autowire-candidates="*Repository,repo">
 
     <!-- 构造器实例化bean-->
     <bean id="exampleBean" class="com.pansy.pojo.ExampleBean" />
@@ -198,6 +200,24 @@
     <bean id="foo4" class="com.pansy.pojo.Foo" c:_0-ref="bar" c:_1-ref="baz"/>
     <!-- 当你设置bean属性时，你可以使用混合的或嵌入的属性名字，只要路径中除了最后的属性名之外所有组件都是非null-->
     <bean id="foo5" class="com.pansy.pojo.Bar">
-        <property name="fred.bob.sammy" value="123"></property>
+        <!--<property name="fred.bob.sammy" value="123"/>-->
     </bean>
+    <!-- 有时bean之间的依赖关系是间接的；例如，类中的静态初始化程序需要触发，例如数据驱动注册。-->
+    <bean id="beanOne" class="com.pansy.pojo.ExampleBean6" depends-on="manager"/>
+    <bean id="manager" class="com.pansy.pojo.ManagerBean"/>
+    <!-- 表示多个bean上的依赖关系，提供一个bean名字列表作为depends-on特性的值，用逗号空格或分号作为有效分隔符-->
+    <bean id="beanTwo" class="com.pansy.pojo.ExampleBean6" depends-on="manager,accountDao">
+        <property name="manager" ref="manager"/>
+    </bean>
+    <bean id="accountDao" class="com.pansy.pojo.JdbcAccountDao"/>
+    <!-- 延迟初始化，当延迟初始化是一个非延迟初始化的单例bean的依赖时，延迟初始化的bean会被创建。你也可以通过<beans>中的default-lazy-init特性
+    控制延迟初始化-->
+    <bean id="lazy" class="com.pansy.pojo.ExpensiveToCreateBean" lazy-init="true"/>
+    <!-- 通过使用<bean>元素的autowire特性你可以指定一个bean定义的自动转配模式，包括no,byName,byType,constructor-->
+    <bean id="exampleBean8" class="com.pansy.pojo.ExampleBean" autowire="no"></bean>
+    <!-- 在单个bean的基础上，可以排除bean在自动装配之外，设置<bean>元素的autowired-candidate特性为false，容器会使自动装配基础
+    框架不能得到指定bean定义-->
+    <bean id="exampleBean9" class="com.pansy.pojo.ExampleBean" autowire-candidate="false"/>
+    <!-- 也可以根据bean名称的匹配模式限制自动装配的候选目标。在顶层的<bean>元素可以接收default-autowire-candidates特性中的一个或多个模式
+    例如为了限制自动装配候选目标匹配任何名字以Repository结尾的bean，可以提供一个*Repository值。为了提供多种模式，可以用逗号分隔-->
 </beans>
